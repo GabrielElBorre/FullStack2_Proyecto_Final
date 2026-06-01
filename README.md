@@ -113,9 +113,17 @@ docker compose up -d --build
 
 Asigna el rol desde el panel `/admin/` o al crear usuarios.
 
+## Comandos útiles
+
+```bash
+python manage.py seed_users      # Usuarios de prueba
+python manage.py seed_campaigns  # Campañas de demostración
+python manage.py test            # Pruebas unitarias
+```
+
 ## Git
 
-Historial con commits significativos por módulo (configuración, modelos, vistas, Docker, documentación).
+Historial con commits significativos: configuración inicial, datos demo, despliegue OCI, media y documentación.
 
 ## Autor
 

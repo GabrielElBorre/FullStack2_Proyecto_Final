@@ -17,6 +17,7 @@ python manage.py collectstatic --noinput
 
 echo "Cargando usuarios de prueba..."
 python manage.py seed_users || true
+python manage.py seed_campaigns || true
 
 if [ "$DEBUG" = "True" ] || [ "$DEBUG" = "true" ]; then
     exec python manage.py runserver 0.0.0.0:8000

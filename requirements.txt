@@ -1,5 +1,7 @@
+# Django 5.x + Python 3.12 (ver Dockerfile)
 Django>=5.0,<5.2
 psycopg2-binary>=2.9.9
+# Equivalente a environs[django] para variables de entorno
 django-environ>=0.11.2
 Pillow>=10.0.0
 gunicorn>=22.0.0

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Mis donaciones{% endblock %}
+
+{% block content %}
+<h1 class="h2 mb-4">Mis donaciones</h1>
+<p class="text-muted">Solo puedes ver tus propias donaciones.</p>
+
+{% if donaciones %}
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Campaña</th>
+                <th>Monto</th>
+                <th>Fecha</th>
+                <th>Mensaje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for donacion in donaciones %}
+            <tr>
+                <td><a href="{{ donacion.campana.get_absolute_url }}">{{ donacion.campana.nombre }}</a></td>
+                <td>${{ donacion.monto }}</td>
+                <td>{{ donacion.fecha_donacion|date:"d/m/Y H:i" }}</td>
+                <td>{{ donacion.mensaje|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">Aún no has realizado donaciones.</div>
+{% endif %}
+{% endblock %}

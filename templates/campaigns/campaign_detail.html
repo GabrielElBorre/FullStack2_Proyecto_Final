@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}{{ campana.nombre }} — Plataforma de Donaciones{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        {% if campana.imagen %}
+        <img src="{{ campana.imagen.url }}" class="img-fluid rounded mb-3" alt="{{ campana.nombre }}">
+        {% endif %}
+        <h1 class="h2">{{ campana.nombre }}</h1>
+        <p class="text-muted">Creada el {{ campana.fecha_creacion|date:"d/m/Y H:i" }}</p>
+        <p>{{ campana.descripcion }}</p>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="h5">Progreso de recaudación</h2>
+                <div class="d-flex justify-content-between mb-2">
+                    <strong>${{ campana.recaudado_actual }}</strong>
+                    <span class="text-muted">Meta: ${{ campana.meta_recaudacion }}</span>
+                </div>
+                <div class="progress progress-campaign mb-2">
+                    <div class="progress-bar bg-success progress-bar-striped"
+                         role="progressbar"
+                         style="width: {{ campana.porcentaje_recaudado }}%">
+                        {{ campana.porcentaje_recaudado|floatformat:1 }}%
+                    </div>
+                </div>
+                <p class="small text-muted mb-0">{{ campana.donaciones.count }} donación(es) registrada(s)</p>
+            </div>
+        </div>
+
+        {% if user.is_authenticated %}
+        {% if campana.usuario_puede_editar user %}
+        <div class="mb-3">
+            <a href="{% url 'campaigns:update' campana.pk %}" class="btn btn-warning btn-sm">Editar</a>
+        </div>
+        {% endif %}
+        {% if user.es_administrador %}
+        <a href="{% url 'campaigns:delete' campana.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+        {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0">Hacer una donación</h2>
+            </div>
+            <div class="card-body">
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'donations:create' campana.pk %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_monto" class="form-label">Monto (USD)</label>
+                        {{ donation_form.monto }}
+                        {% if donation_form.monto.errors %}
+                        <div class="text-danger small">{{ donation_form.monto.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_mensaje" class="form-label">Mensaje (opcional)</label>
+                        {{ donation_form.mensaje }}
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Donar ahora</button>
+                </form>
+                {% else %}
+                <p class="mb-3">Inicia sesión para donar a esta campaña.</p>
+                <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary w-100">Iniciar sesión</a>
+                <a href="{% url 'accounts:signup' %}" class="btn btn-outline-secondary w-100 mt-2">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

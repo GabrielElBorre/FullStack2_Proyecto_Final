@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Campañas — Plataforma de Donaciones{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h2">Campañas activas</h1>
+        <p class="text-muted">Apoya causas que importan. Busca por nombre o descripción.</p>
+    </div>
+    <div class="col-md-4">
+        <form method="get" class="d-flex gap-2" role="search">
+            <input type="search" name="q" class="form-control" placeholder="Buscar campañas..."
+                   value="{{ consulta }}">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+    </div>
+</div>
+
+{% if campanas %}
+<div class="row g-4">
+    {% for campana in campanas %}
+    <div class="col-md-4">
+        <div class="card h-100 card-campaign campaign-card shadow-sm">
+            {% if campana.imagen %}
+            <img src="{{ campana.imagen.url }}" class="card-img-top" alt="{{ campana.nombre }}">
+            {% else %}
+            <div class="bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center" style="height:180px">
+                <span class="text-muted">Sin imagen</span>
+            </div>
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ campana.nombre }}</h5>
+                <p class="card-text text-muted small flex-grow-1">
+                    {{ campana.descripcion|truncatewords:20 }}
+                </p>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>${{ campana.recaudado_actual }} recaudados</span>
+                        <span>Meta: ${{ campana.meta_recaudacion }}</span>
+                    </div>
+                    <div class="progress progress-campaign">
+                        <div class="progress-bar bg-success" role="progressbar"
+                             style="width: {{ campana.porcentaje_recaudado }}%"
+                             aria-valuenow="{{ campana.porcentaje_recaudado|floatformat:0 }}"
+                             aria-valuemin="0" aria-valuemax="100">
+                            {{ campana.porcentaje_recaudado|floatformat:0 }}%
+                        </div>
+                    </div>
+                </div>
+                <a href="{{ campana.get_absolute_url }}" class="btn btn-outline-primary mt-auto">Ver campaña</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+<nav class="mt-4" aria-label="Paginación">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if consulta %}&q={{ consulta }}{% endif %}">Anterior</a>
+        </li>
+        {% endif %}
+        <li class="page-item disabled">
+            <span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        </li>
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if consulta %}&q={{ consulta }}{% endif %}">Siguiente</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="alert alert-info">
+    {% if consulta %}
+    No se encontraron campañas para «{{ consulta }}».
+    {% else %}
+    Aún no hay campañas activas.
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

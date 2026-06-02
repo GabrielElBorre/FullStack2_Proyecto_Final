@@ -15,7 +15,7 @@ Proyecto académico en **Django 5.x** y **Python 3.12** con **PostgreSQL**, **Do
 ### Donation (Donación)
 ![Modelo Donation](./docs/img_donation.png)
 
-![Captura de la plataforma](docs/screenshot.png)
+
 
 ## Credenciales de prueba
 
@@ -185,8 +185,11 @@ python manage.py test            # Pruebas unitarias
 Historial con commits significativos: configuración inicial, datos demo, despliegue OCI, media y documentación.
 
 ## Autor
-Gabriel Gerardo Cardenas Briones · 21130566
-Roberto Carlos Ruacho Martinez · 21130555
-Juan Raul Wong Aguilar · 21130564
+¡Gabriel Gerardo Cardenas Briones · 21130566*
+---
+*Roberto Carlos Ruacho Martinez · 21130555*
+---
+*Juan Raul Wong Aguilar · 21130564*
+---
 Proyecto académico — Plataforma de Donaciones.
 

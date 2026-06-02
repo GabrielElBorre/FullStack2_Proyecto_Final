@@ -6,42 +6,67 @@ from apps.accounts.models import CustomUser, RolUsuario
 class Command(BaseCommand):
     help = "Crea usuarios de prueba para demostración y evaluación."
 
-    def handle(self, *args, **options):
-        admin_user, created = CustomUser.objects.get_or_create(
-            email="admin@donaciones.com",
+    def _asegurar_usuario(self, email, password, first_name, last_name, rol, staff=False, superuser=False):
+        user, created = CustomUser.objects.get_or_create(
+            email=email,
             defaults={
-                "first_name": "Admin",
-                "last_name": "Sistema",
-                "rol": RolUsuario.ADMIN,
-                "is_staff": True,
-                "is_superuser": True,
+                "first_name": first_name,
+                "last_name": last_name,
+                "rol": rol,
+                "is_staff": staff,
+                "is_superuser": superuser,
             },
         )
-        if created:
-            admin_user.set_password("admin123")
-            admin_user.save()
-            self.stdout.write(self.style.SUCCESS("Superusuario creado: admin@donaciones.com"))
-        else:
-            admin_user.set_password("admin123")
-            admin_user.is_staff = True
-            admin_user.is_superuser = True
-            admin_user.rol = RolUsuario.ADMIN
-            admin_user.save()
-            self.stdout.write("Superusuario actualizado: admin@donaciones.com")
+        user.first_name = first_name
+        user.last_name = last_name
+        user.rol = rol
+        user.is_staff = staff
+        user.is_superuser = superuser
+        user.username = email
+        user.set_password(password)
+        user.save()
 
-        normal_user, created = CustomUser.objects.get_or_create(
-            email="usuario@test.com",
-            defaults={
-                "first_name": "Usuario",
-                "last_name": "Prueba",
-                "rol": RolUsuario.DONANTE,
-            },
+        accion = "creado" if created else "actualizado"
+        self.stdout.write(self.style.SUCCESS(f"Usuario {accion}: {email}"))
+        return user
+
+    def handle(self, *args, **options):
+        self._asegurar_usuario(
+            "sebasborrego1@gmail.com",
+            "Donaciones123",
+            "Sebastian",
+            "Borrego",
+            RolUsuario.ADMIN,
+            staff=True,
+            superuser=True,
         )
-        if created:
-            normal_user.set_password("testpass123")
-            normal_user.save()
-            self.stdout.write(self.style.SUCCESS("Usuario creado: usuario@test.com"))
-        else:
-            normal_user.set_password("testpass123")
-            normal_user.save()
-            self.stdout.write("Usuario actualizado: usuario@test.com")
+        self._asegurar_usuario(
+            "admin@donaciones.com",
+            "admin123",
+            "Admin",
+            "Sistema",
+            RolUsuario.ADMIN,
+            staff=True,
+            superuser=True,
+        )
+        self._asegurar_usuario(
+            "usuario@test.com",
+            "testpass123",
+            "Usuario",
+            "Prueba",
+            RolUsuario.DONANTE,
+        )
+        self._asegurar_usuario(
+            "sebasborrego0@gmail.com",
+            "testpass123",
+            "Sebastian",
+            "Borrego",
+            RolUsuario.CREADOR,
+        )
+        self._asegurar_usuario(
+            "alu.21130555@correo.itlalaguna.edu.mx",
+            "testpass123",
+            "Alumno",
+            "ITL",
+            RolUsuario.DONANTE,
+        )

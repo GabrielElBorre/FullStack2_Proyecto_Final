@@ -29,6 +29,31 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.email
 
+    def save(self, *args, **kwargs):
+        if not self.username:
+            self.username = self.email
+        super().save(*args, **kwargs)
+
+    @property
+    def nombre_para_mostrar(self):
+        nombre = self.get_full_name().strip()
+        return nombre if nombre else self.email.split("@")[0]
+
+    @property
+    def iniciales(self):
+        if self.first_name and self.last_name:
+            return f"{self.first_name[0]}{self.last_name[0]}".upper()
+        return self.nombre_para_mostrar[:2].upper()
+
+    @property
+    def etiqueta_rol(self):
+        return dict(RolUsuario.choices).get(self.rol, self.rol)
+
+    @property
+    def puede_donar(self):
+        """Cualquier usuario activo puede donar, sin importar su rol."""
+        return self.is_active
+
     @property
     def puede_crear_campanas(self):
         return self.rol in (RolUsuario.CREADOR, RolUsuario.ADMIN) or self.is_staff

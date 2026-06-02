@@ -5,26 +5,35 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-lg-8">
-        <h1 class="h2 mb-4">{% if object %}Editar campaña{% else %}Crear campaña{% endif %}</h1>
-        <form method="post" enctype="multipart/form-data" novalidate>
-            {% csrf_token %}
-            {% for field in form %}
-            <div class="mb-3">
-                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                <div class="text-danger small">{{ field.errors }}</div>
+        <div class="surface-card p-4">
+            <h1 class="h3 mb-1">{% if object %}Editar campaña{% else %}Nueva campaña{% endif %}</h1>
+            <p class="text-muted mb-4">
+                {% if object %}
+                Los cambios se verán en tu perfil y en la página pública de la campaña.
+                {% else %}
+                Tú aparecerás como organizador. Podrás editarla desde tu perfil.
                 {% endif %}
-                {% if field.help_text %}
-                <div class="form-text">{{ field.help_text }}</div>
-                {% endif %}
-            </div>
-            {% endfor %}
-            <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Guardar</button>
-                <a href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'campaigns:list' %}{% endif %}" class="btn btn-secondary">Cancelar</a>
-            </div>
-        </form>
+            </p>
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <div class="text-danger small">{{ field.errors }}</div>
+                    {% endif %}
+                    {% if field.help_text %}
+                    <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <div class="d-flex gap-2 pt-2">
+                    <button type="submit" class="btn btn-primary">Guardar campaña</button>
+                    <a href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'accounts:profile' %}?tab=campanas{% endif %}" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

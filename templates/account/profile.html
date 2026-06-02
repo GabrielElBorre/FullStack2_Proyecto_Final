@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load money_extras %}
+
+{% block title %}Mi perfil — DonaAhora{% endblock %}
+
+{% block content %}
+<div class="surface-card profile-header mb-4">
+    {% include "partials/user_avatar.html" with usuario=user large=True %}
+    <div class="flex-grow-1">
+        <h1 class="h3 mb-1">{{ user.nombre_para_mostrar }}</h1>
+        <p class="text-muted mb-2">{{ user.email }}</p>
+        <span class="role-badge">{{ user.etiqueta_rol }}</span>
+        <span class="text-muted small ms-2">Miembro desde {{ user.date_joined|date:"F Y" }}</span>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-start">
+        <a href="{% url 'campaigns:list' %}" class="btn btn-donate btn-sm px-3" style="width:auto">Donar a una campaña</a>
+        <a href="?tab=donaciones" class="btn btn-outline-teal btn-sm">Mis donaciones</a>
+        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-secondary btn-sm">Editar perfil</a>
+        {% if user.puede_crear_campanas %}
+        <a href="{% url 'campaigns:create' %}" class="btn btn-primary btn-sm">+ Nueva campaña</a>
+        {% endif %}
+    </div>
+</div>
+
+{% include "partials/permisos_rol.html" %}
+
+<div class="row g-3 mb-4">
+    <div class="col-4">
+        <div class="surface-card stat-pill w-100">
+            <span class="stat-value">{{ total_donado|moneda_mxn }}</span>
+            <span class="stat-label">Donado</span>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="surface-card stat-pill w-100">
+            <span class="stat-value">{{ cantidad_donaciones }}</span>
+            <span class="stat-label">Donaciones</span>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="surface-card stat-pill w-100">
+            <span class="stat-value">{{ campanas_creadas.count }}</span>
+            <span class="stat-label">Campañas</span>
+        </div>
+    </div>
+</div>
+
+<ul class="nav profile-tabs mb-4" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link {% if tab_activa == 'resumen' %}active{% endif %}" href="?tab=resumen">Resumen</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if tab_activa == 'campanas' %}active{% endif %}" href="?tab=campanas">Mis campañas</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if tab_activa == 'donaciones' %}active{% endif %}" href="?tab=donaciones">Mis donaciones</a>
+    </li>
+</ul>
+
+{% if tab_activa == 'campanas' or tab_activa == 'resumen' %}
+<section class="mb-5" id="mis-campanas">
+    <h2 class="h5 mb-3">Campañas que organizo</h2>
+    {% if campanas_creadas %}
+    <div class="surface-card">
+        {% for campana in campanas_creadas %}
+        <div class="campaign-row-item">
+            <div>
+                <a href="{{ campana.get_absolute_url }}" class="fw-semibold text-decoration-none text-dark">
+                    {{ campana.nombre }}
+                </a>
+                <div class="small text-muted mt-1">
+                    Creada {{ campana.fecha_creacion|date:"d/m/Y" }}
+                    · {{ campana.num_donaciones }} donante(s)
+                    · {% if campana.activa %}<span class="text-success">Activa</span>{% else %}<span class="text-warning">Inactiva</span>{% endif %}
+                </div>
+                <div class="progress progress-campaign mt-2" style="max-width:280px">
+                    <div class="progress-bar" style="width:{{ campana.porcentaje_recaudado }}%"></div>
+                </div>
+                <span class="progress-label">{{ campana.recaudado_actual|moneda_mxn }} / {{ campana.meta_recaudacion|moneda_mxn }}</span>
+            </div>
+            <div class="d-flex gap-2 flex-shrink-0">
+                <a href="{{ campana.get_absolute_url }}" class="btn btn-outline-teal btn-sm">Ver</a>
+                <a href="{% url 'campaigns:update' campana.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                {% if user.es_administrador %}
+                <a href="{% url 'campaigns:delete' campana.pk %}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% elif tab_activa == 'campanas' %}
+    <div class="surface-card p-4 text-center text-muted">
+        <p class="mb-3">Aún no has creado campañas.</p>
+        {% if user.puede_crear_campanas %}
+        <a href="{% url 'campaigns:create' %}" class="btn btn-primary">Crear mi primera campaña</a>
+        {% else %}
+        <p class="small mb-0">Tu rol es <strong>{{ user.etiqueta_rol }}</strong>. Un administrador puede asignarte el rol de creador.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</section>
+{% endif %}
+
+{% if tab_activa == 'donaciones' or tab_activa == 'resumen' %}
+<section id="mis-donaciones" class="{% if tab_activa == 'resumen' and campanas_creadas %}mt-2{% endif %}">
+    <h2 class="h5 mb-3">Historial de donaciones</h2>
+    {% if donaciones %}
+    <div class="surface-card overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Campaña</th>
+                        <th>Organizador</th>
+                        <th>Monto</th>
+                        <th>Fecha</th>
+                        <th>Mensaje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for donacion in donaciones %}
+                    <tr>
+                        <td>
+                            <a href="{{ donacion.campana.get_absolute_url }}" class="fw-semibold text-decoration-none">
+                                {{ donacion.campana.nombre }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if donacion.campana.creador %}
+                            {% include "partials/creator_chip.html" with creador=donacion.campana.creador %}
+                            {% else %}—{% endif %}
+                        </td>
+                        <td class="text-success fw-semibold">{{ donacion.monto|moneda_mxn }}</td>
+                        <td class="text-muted small">{{ donacion.fecha_donacion|date:"d/m/Y H:i" }}</td>
+                        <td class="small">{{ donacion.mensaje|default:"—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% elif tab_activa == 'donaciones' %}
+    <div class="surface-card p-4 text-center">
+        <p class="text-muted mb-3">Todavía no has apoyado ninguna causa.</p>
+        <a href="{% url 'campaigns:list' %}" class="btn btn-donate d-inline-block w-auto px-4">Explorar campañas</a>
+    </div>
+    {% endif %}
+</section>
+{% endif %}
+
+{% if tab_activa == 'resumen' and not campanas_creadas and not donaciones %}
+<div class="surface-card p-5 text-center">
+    <h2 class="h5">¡Bienvenido a DonaAhora!</h2>
+    <p class="text-muted">Explora campañas o crea la tuya para empezar a recaudar.</p>
+    <a href="{% url 'campaigns:list' %}" class="btn btn-primary me-2">Ver campañas</a>
+    {% if user.puede_crear_campanas %}
+    <a href="{% url 'campaigns:create' %}" class="btn btn-outline-teal">Crear campaña</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

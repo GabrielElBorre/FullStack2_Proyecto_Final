@@ -9,7 +9,7 @@ class DonationForm(forms.ModelForm):
         fields = ["monto", "mensaje"]
         widgets = {
             "monto": forms.NumberInput(
-                attrs={"class": "form-control", "step": "0.01", "min": "1", "placeholder": "Monto"}
+                attrs={"class": "form-control", "step": "0.01", "min": "1", "placeholder": "Monto en MXN"}
             ),
             "mensaje": forms.Textarea(
                 attrs={

@@ -25,4 +25,4 @@ class Donation(models.Model):
         verbose_name_plural = "donaciones"
 
     def __str__(self):
-        return f"{self.usuario.email} - ${self.monto} a {self.campana.nombre}"
+        return f"{self.usuario.email} - {self.monto} MXN a {self.campana.nombre}"

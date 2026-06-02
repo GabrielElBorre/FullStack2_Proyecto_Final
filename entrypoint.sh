@@ -15,6 +15,10 @@ python manage.py migrate --noinput
 echo "Recolectando archivos estáticos..."
 python manage.py collectstatic --noinput
 
+echo "Preparando carpeta media..."
+mkdir -p /app/media/campaigns
+chmod -R 755 /app/media
+
 echo "Cargando usuarios de prueba..."
 python manage.py seed_users || true
 python manage.py seed_campaigns || true

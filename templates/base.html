@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <nav class="navbar navbar-expand-lg site-nav mb-0">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{% url 'campaigns:list' %}">Donaciones</a>
+            <a class="navbar-brand" href="{% url 'campaigns:list' %}">♥ DonaAhora</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -20,34 +20,39 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'campaigns:list' %}">Campañas</a>
                     </li>
-                    {% if user.is_authenticated and user.puede_crear_campanas %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'campaigns:create' %}">Nueva campaña</a>
-                    </li>
-                    {% endif %}
                     {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'donations:my_donations' %}">Mis donaciones</a>
+                        <a class="nav-link" href="{% url 'accounts:profile' %}">Mi perfil</a>
                     </li>
+                    {% if user.puede_crear_campanas %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'campaigns:create' %}">Crear campaña</a>
+                    </li>
+                    {% endif %}
                     {% endif %}
                 </ul>
-                <ul class="navbar-nav">
+                <ul class="navbar-nav align-items-lg-center gap-lg-1">
                     {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <span class="nav-link">Hola, {{ user.first_name|default:user.email }}</span>
+                        <a class="nav-link d-flex align-items-center gap-2" href="{% url 'accounts:profile' %}">
+                            {% include "partials/user_avatar.html" with usuario=user %}
+                            <span class="d-none d-md-inline">{{ user.nombre_para_mostrar }}</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'accounts:password_change' %}">Contraseña</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'accounts:logout' %}">Cerrar sesión</a>
+                        <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-logout nav-link border-0 bg-transparent">
+                                Salir
+                            </button>
+                        </form>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'accounts:login' %}">Iniciar sesión</a>
+                        <a class="nav-link" href="{% url 'accounts:login' %}">Entrar</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'accounts:signup' %}">Registrarse</a>
+                        <a class="nav-link btn-donate-nav" href="{% url 'accounts:signup' %}">Únete gratis</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -55,7 +60,7 @@
         </div>
     </nav>
 
-    <main class="container pb-5">
+    <main class="container py-4 flex-grow-1">
         {% if messages %}
         {% for message in messages %}
         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -68,9 +73,14 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-light text-center py-3 mt-auto border-top">
-        <div class="container text-muted small">
-            Plataforma de Donaciones — Proyecto académico Django 5 + PostgreSQL + Docker
+    <footer class="site-footer text-center py-4">
+        <div class="container small">
+            <p class="mb-2"><strong>DonaAhora</strong> — Cada aporte construye algo real.</p>
+            <ul class="list-unstyled mb-0 site-footer-team">
+                <li>Gabriel Gerardo Cardenas Briones · 21130566</li>
+                <li>Roberto Carlos Ruacho Martinez · 21130555</li>
+                <li>Juan Raul Wong Aguilar · 21130564</li>
+            </ul>
         </div>
     </footer>
 

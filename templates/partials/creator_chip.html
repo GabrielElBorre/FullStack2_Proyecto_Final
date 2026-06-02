@@ -1,0 +1,8 @@
+{% if creador %}
+<div class="creator-chip">
+    {% include "partials/user_avatar.html" with usuario=creador %}
+    <span>por <strong>{{ creador.nombre_para_mostrar }}</strong></span>
+</div>
+{% else %}
+<span class="text-muted small">Organización verificada</span>
+{% endif %}

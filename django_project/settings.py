@@ -93,23 +93,31 @@ STORAGES = {
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+# En OCI/producción sin Nginx: servir imágenes subidas desde Django
+SERVE_MEDIA = env.bool("SERVE_MEDIA", default=True)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_URL = "accounts:login"
-LOGIN_REDIRECT_URL = "campaigns:list"
+LOGIN_REDIRECT_URL = "accounts:profile"
 LOGOUT_REDIRECT_URL = "campaigns:list"
 
 EMAIL_BACKEND = env(
     "EMAIL_BACKEND",
-    default="django.core.mail.backends.console.EmailBackend",
+    default="django_project.email_backends.ConsoleAndGmailBackend",
 )
-EMAIL_HOST = env("EMAIL_HOST", default="localhost")
+EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
 EMAIL_PORT = env.int("EMAIL_PORT", default=587)
-EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="").strip()
+# Gmail App Password: quitar espacios (Docker .env no admite valores con espacio sin comillas)
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="").strip().strip('"').replace(" ", "")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@donaciones.com")
+EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
+EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=30)
+
+_default_from = env("DEFAULT_FROM_EMAIL", default="")
+DEFAULT_FROM_EMAIL = _default_from or EMAIL_HOST_USER or "noreply@donaciones.com"
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

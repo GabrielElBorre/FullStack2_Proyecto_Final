@@ -3,23 +3,32 @@
 {% block title %}Registro{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h1 class="h3 mb-4">Crear cuenta</h1>
-        <form method="post">
-            {% csrf_token %}
-            {% for field in form %}
-            <div class="mb-3">
-                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+<div class="surface-card auth-card">
+    <h1 class="h3 mb-2">Únete a DonaAhora</h1>
+    <p class="text-muted mb-4">Crea tu cuenta y empieza a apoyar causas hoy.</p>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3 {% if field.name == 'organizar_campanas' %}form-check ps-0{% endif %}">
+            {% if field.name == 'organizar_campanas' %}
+            <div class="d-flex gap-2 align-items-start ms-1">
                 {{ field }}
-                {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+                <div>
+                    <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                </div>
             </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-primary w-100">Registrarse</button>
-        </form>
-        <p class="mt-3 text-center">
-            ¿Ya tienes cuenta? <a href="{% url 'accounts:login' %}">Inicia sesión</a>
-        </p>
-    </div>
+            {% else %}
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% endif %}
+            {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-donate w-100">Crear cuenta</button>
+    </form>
+    <p class="text-center small mt-3 mb-0">
+        ¿Ya tienes cuenta? <a href="{% url 'accounts:login' %}">Inicia sesión</a>
+    </p>
 </div>
 {% endblock %}

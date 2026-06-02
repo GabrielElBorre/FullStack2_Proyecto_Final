@@ -23,7 +23,7 @@ class CampaignListView(ListView):
     paginate_by = 9
 
     def get_queryset(self):
-        queryset = Campaign.objects.filter(activa=True)
+        queryset = Campaign.objects.filter(activa=True).select_related("creador")
         consulta = self.request.GET.get("q", "").strip()
         if consulta:
             queryset = queryset.filter(
@@ -42,9 +42,22 @@ class CampaignDetailView(DetailView):
     template_name = "campaigns/campaign_detail.html"
     context_object_name = "campana"
 
+    def get_queryset(self):
+        return super().get_queryset().select_related("creador")
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["donation_form"] = DonationForm()
+        user = self.request.user
+        context["puede_editar_campana"] = (
+            user.is_authenticated and self.object.usuario_puede_editar(user)
+        )
+        context["puede_eliminar_campana"] = (
+            user.is_authenticated and user.es_administrador
+        )
+        context["ultimas_donaciones"] = (
+            self.object.donaciones.select_related("usuario").order_by("-fecha_donacion")[:8]
+        )
         return context
 
 
@@ -60,7 +73,10 @@ class CampaignCreateView(LoginRequiredMixin, CanCreateCampaignMixin, CreateView)
 
     def form_valid(self, form):
         form.instance.creador = self.request.user
-        messages.success(self.request, "Campaña creada correctamente.")
+        messages.success(
+            self.request,
+            f"Campaña creada. Apareces como organizador en tu perfil y en la página pública.",
+        )
         return super().form_valid(form)
 
     def get_success_url(self):

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load money_extras %}
 
 {% block title %}Mis donaciones{% endblock %}
 
@@ -21,7 +22,7 @@
             {% for donacion in donaciones %}
             <tr>
                 <td><a href="{{ donacion.campana.get_absolute_url }}">{{ donacion.campana.nombre }}</a></td>
-                <td>${{ donacion.monto }}</td>
+                <td>{{ donacion.monto|moneda_mxn }}</td>
                 <td>{{ donacion.fecha_donacion|date:"d/m/Y H:i" }}</td>
                 <td>{{ donacion.mensaje|default:"—" }}</td>
             </tr>

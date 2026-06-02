@@ -69,6 +69,31 @@ class CampaignViewsTest(TestCase):
         self.assertContains(response, "Reforestación")
 
 
+class DonationPermissionsTest(TestCase):
+    def test_creador_puede_donar(self):
+        creador = User.objects.create_user(
+            email="creador2@test.com",
+            password="pass12345",
+            first_name="C",
+            last_name="R",
+            rol=RolUsuario.CREADOR,
+        )
+        campana = Campaign.objects.create(
+            nombre="Test",
+            descripcion="Desc",
+            meta_recaudacion=Decimal("100.00"),
+            creador=creador,
+        )
+        client = Client()
+        client.login(username="creador2@test.com", password="pass12345")
+        response = client.post(
+            reverse("donations:create", kwargs={"campana_pk": campana.pk}),
+            {"monto": "25.00", "mensaje": "Apoyo"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Donation.objects.filter(usuario=creador, campana=campana).exists())
+
+
 class AuthenticationTest(TestCase):
     def test_login_con_email(self):
         User.objects.create_user(

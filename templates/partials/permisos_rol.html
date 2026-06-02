@@ -1,0 +1,15 @@
+<div class="surface-card p-3 mb-4 small">
+    <p class="mb-2 fw-semibold">¿Qué puede hacer tu rol ({{ user.etiqueta_rol }})?</p>
+    <ul class="mb-0 ps-3">
+        <li><strong>Donar:</strong> sí — todos los usuarios activos pueden donar.</li>
+        <li><strong>Ver mis donaciones:</strong> sí — pestaña «Mis donaciones» en tu perfil.</li>
+        {% if user.puede_crear_campanas %}
+        <li><strong>Crear/editar campañas:</strong> sí — menú «Crear campaña» y pestaña «Mis campañas».</li>
+        {% else %}
+        <li><strong>Crear campañas:</strong> no — rol Donante. Al registrarte puedes marcar «organizar campañas».</li>
+        {% endif %}
+        {% if user.es_administrador %}
+        <li><strong>Eliminar campañas:</strong> sí — como administrador.</li>
+        {% endif %}
+    </ul>
+</div>
